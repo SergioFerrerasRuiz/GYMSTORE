@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GYM STORE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        #chat-box {
+            overflow-y: auto;
+            max-height: calc(100vh - 160px);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex flex-col h-screen">
+    <div class="w-full h-full max-w-2xl bg-gray-850 shadow-2xl rounded-lg overflow-hidden flex flex-col mx-auto">
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-5 text-center text-xl font-extrabold tracking-wider shadow-md">GYM STORE</div>
+        <div class="p-6 flex-1 overflow-y-auto space-y-4 bg-gray-800" id="chat-box">
+            <!-- Mostrar la respuesta cuando esté disponible -->
+            <div id="chat-response"></div>
+        </div>
+        <div class="border-t border-gray-700 p-4 flex bg-gray-800">
+            <form id="chat-form" class="flex items-center space-x-2 w-full relative">
+                <textarea id="chat-input" name="user_question" placeholder="Escribe tu pregunta..." rows="1" class="flex-grow p-3 rounded-2xl bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium placeholder-gray-400 shadow-md"></textarea>
+                <button type="submit" id="send-button" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2 rounded-2xl text-sm font-semibold hover:opacity-90 transition-all shadow-lg">➤</button>
+                <div id="loading-circle" class="hidden absolute right-16 w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = [];
+
+        // Cargar historial del chat cuando la página se cargue
+        $(document).ready(function() {
+            loadChatHistory();
+            $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+        });
+
+        // Función para cargar el historial del chat
+        function loadChatHistory() {
+            let chatHistoryHtml = '';
+            chatHistory.forEach(message => {
+                chatHistoryHtml += `
+                    <div class="flex justify-end">
+                        <div class="bg-blue-500 text-white p-4 rounded-2xl max-w-xs text-sm font-medium shadow-md">
+                            <strong>Tú:</strong> ${message.user_question}
+                        </div>
+                    </div>
+                    <div class="flex justify-start">
+                        <div class="bg-gray-700 p-4 rounded-2xl max-w-xs text-sm font-medium shadow-md">
+                            <ul>
+                                <li><strong>PACO:</strong> ${message.answer}</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            });
+            $('#chat-response').html(chatHistoryHtml);
+        }
+
+        // Cuando se envíe el formulario, evitamos que se recargue la página
+        $('#chat-form').on('submit', function(e) {
+            e.preventDefault();
+            const loadingCircle = document.querySelector('#loading-circle');
+            loadingCircle.classList.remove('hidden');
+
+            // Obtener el valor de la pregunta del usuario
+            const userQuestion = $('#chat-input').val();
+
+            // Enviar el mensaje con AJAX
+            $.ajax({
+                type: 'POST',
+                url: '/ask',  // Cambia esto por la URL de tu ruta Flask
+                contentType: 'application/json',
+                data: JSON.stringify({ question: userQuestion }),  // JSON con la pregunta
+                success: function(response) {
+                    // Cuando se recibe la respuesta, ocultamos el círculo de carga
+                    loadingCircle.classList.add('hidden');
+
+                    // Añadir el nuevo mensaje al historial
+                    let answer = '';
+                    if (response && response.length > 0) {
+                        answer = response[0].answer;
+                    }
+
+                    chatHistory.push({ user_question: userQuestion, answer: answer });
+
+                    // Cargar el historial de chat actualizado
+                    loadChatHistory();
+
+                    // Desplazar hacia abajo automáticamente
+                    $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+
+                    // Limpiar el input
+                    $('#chat-input').val('');
+                },
+                error: function(xhr, errmsg, err) {
+                    console.error("Error en AJAX: ", errmsg);
+                    loadingCircle.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
