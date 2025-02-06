@@ -3,20 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GYMSTORE</title>
+    <title>🔥GYMSTORE🔥</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        #chat-box {
-            overflow-y: auto;
-            max-height: calc(100vh - 200px);
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body class="bg-gray-950 text-white flex flex-col h-screen items-center p-4">
     <div class="w-full max-w-2xl bg-gray-900 shadow-lg rounded-lg overflow-hidden flex flex-col h-full">
-        <div class="bg-gray-700 text-white p-4 text-center text-lg font-bold tracking-wide shadow-md">GYMSTORE</div>
+        <div class="bg-gray-700 text-white p-4 text-center text-lg font-bold tracking-wide shadow-md">🔥GYMSTORE🔥</div>
         <div class="p-4 flex-1 overflow-y-auto space-y-4 bg-gray-800" id="chat-box">
             <div id="chat-response"></div>
         </div>
@@ -30,66 +24,6 @@
         </div>
     </div>
 
-    <script>
-        let chatHistory = [];
-
-        $(document).ready(function() {
-            loadChatHistory();
-            $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
-        });
-
-        function loadChatHistory() {
-            let chatHistoryHtml = '';
-            chatHistory.forEach(message => {
-                chatHistoryHtml += `
-                    <div class="flex justify-end">
-                        <div class="bg-gray-600 text-white p-3 rounded-xl max-w-xs text-sm font-medium shadow-md">
-                            <strong>Tú:</strong> ${message.user_question}
-                        </div>
-                    </div>
-                    <div class="flex justify-start">
-                        <div class="bg-gray-700 p-3 rounded-xl max-w-xs text-sm font-medium shadow-md">
-                            <ul>
-                                <li><strong>ChatBot:</strong> ${message.answer}</li>
-                            </ul>
-                        </div>
-                    </div>
-                `;
-            });
-            $('#chat-response').html(chatHistoryHtml);
-        }
-
-        $('#chat-form').on('submit', function(e) {
-            e.preventDefault();
-            const loadingCircle = document.querySelector('#loading-circle');
-            loadingCircle.classList.remove('hidden');
-
-            const userQuestion = $('#chat-input').val();
-
-            $.ajax({
-                type: 'POST',
-                url: '/ask',
-                contentType: 'application/json',
-                data: JSON.stringify({ question: userQuestion }),
-                success: function(response) {
-                    loadingCircle.classList.add('hidden');
-                    let answer = response && response.length > 0 ? response[0].answer : '';
-                    chatHistory.push({ user_question: userQuestion, answer: answer });
-                    loadChatHistory();
-                    $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
-                    $('#chat-input').val('');
-                },
-                error: function(xhr, errmsg, err) {
-                    console.error("Error en AJAX: ", errmsg);
-                    loadingCircle.classList.add('hidden');
-                }
-            });
-        });
-
-        $('#clear-chat').on('click', function() {
-            chatHistory = [];
-            $('#chat-response').html('');
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

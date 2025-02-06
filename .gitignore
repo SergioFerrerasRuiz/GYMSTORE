@@ -1,1 +1,3 @@
+#Es buena practica poner aqui el entorno, porque puede dar conflictos
+entorno
 .env

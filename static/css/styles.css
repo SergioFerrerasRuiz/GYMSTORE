@@ -1,0 +1,9 @@
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+#chat-box {
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+}
+
